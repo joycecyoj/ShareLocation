@@ -7,8 +7,13 @@ import io from 'socket.io-client'
 export default class App extends React.Component {
   constructor(props) {
     super(props);
-    this.socket = new WebSocket('ws://localhost:3000') // describes the URL of page we're on
-
+    this.socket = new WebSocket('http://ae4262d6.ngrok.io') // describes the URL of page we're on
+    this.socket.onopen = () => {
+      this.socket.send(JSON.stringify({
+        event: 'connect',
+        data: 'hello'
+      }))
+    }
     this.state = {
       isLoading: true,
       myPosition: {
@@ -25,12 +30,14 @@ export default class App extends React.Component {
 
   componentDidMount() {
     // socket listeners go here!!!!!!!!!!!!!!!!!!
-    navigator.geolocation.watchPosition(
+    this.watchId = navigator.geolocation.watchPosition(
       (position) => {
         console.log('new position', position.coords)
         this.socket.send(JSON.stringify({
-          position: position
+          event: 'position',
+          data: position
         }))
+ 
         let temp = this.state.myPosition;
         temp.latitude = position.coords.latitude
         temp.longitude = position.coords.longitude
@@ -42,6 +49,10 @@ export default class App extends React.Component {
       (error) => console.log(error),
       { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000, distanceFilter: 10 },
     );
+  }
+
+  componentWillUnmount() {
+    navigator.geolocation.clearWatch(this.watchId);
   }
 
 
@@ -62,11 +73,9 @@ export default class App extends React.Component {
     // this.socket.on('welcome', () => {
     //   console.log('I have made a persistent two-way connection to the server!')
     // })
-    this.socket.onopen = () => {
-      this.socket.send(JSON.stringify({
-        message: 'I have made a persistent two-way connection to the server!'
-      }))
-    }
+    // console.log(this.socket)
+    console.log(this.socket.readyState)
+
 
     this.socket.onmessage = (incomingServerData) => {
       // a message was received

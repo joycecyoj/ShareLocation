@@ -94,14 +94,18 @@ io.on('connection', (socket) => {
   socket.on('message', (incomingClientData) => {
     let data = JSON.parse(incomingClientData)
     console.log('data received =========> ', data)
+    if (data.event === 'position') {
+      console.log(data)
 
-    io.clients.forEach(function(client) {        
+    }
 
-      if (client !== socket && client.readyState === WebSocket.OPEN) {
-        console.log('2 going to send.......................')
-        client.send(data);
-      }
-    });
+    // io.clients.forEach(function(client) {        
+
+    //   if (client !== socket && client.readyState === WebSocket.OPEN) {
+    //     console.log('2 going to send.......................')
+    //     client.send(data);
+    //   }
+    // });
 
   })
 
