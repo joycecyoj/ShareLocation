@@ -1,7 +1,6 @@
 const path = require('path')
 const express = require('express')
 const morgan = require('morgan')
-const http = require('http')
 const bodyParser = require('body-parser')
 const compression = require('compression')
 const WebSocket = require('ws');
@@ -11,7 +10,10 @@ const WebSocket = require('ws');
 
 const PORT = process.env.PORT || 3000
 const app = express();
-const server = http.createServer(app)
+const server = require('http').Server(app);
+// const io = require('socket.io')(server);
+const io = new WebSocket.Server({ server });
+
 
 
 if (process.env.NODE_ENV !== 'production') require('../secrets') //Put the keys in secrets file then put the secrets file in the .gitignore file
@@ -83,52 +85,68 @@ if (process.env.NODE_ENV !== 'production') require('../secrets') //Put the keys 
 // let users = {};
 
 
+server.listen(3000, () => console.log(`Mixing it up on port ${PORT}`));
+
 // The event will be called when a client is connected.
-// websocket.on('connection', (socket) => {
-//   console.log('A client just joined on', socket.id);
-//   clients[socket.id] = socket;
-//   socket.on('userLocationData', (userlocationData) => onUserLocationReceived(userLocationData, socket));
-// });
+io.on('connection', (socket) => {
+  console.log('A client just joined on ===============================');
 
-const wss = new WebSocket.Server({ server });
+  socket.on('message', (incomingClientData) => {
+    let data = JSON.parse(incomingClientData)
+    console.log('data received =========> ', data)
 
-wss.on('connection', function connection(ws) {
-  // ws.on('message', function incoming(message) {
-  //   console.log('received: %s', message);
-  // });
-  ws.send('something from server===================');
+    io.clients.forEach(function(client) {        
+
+      if (client !== socket && client.readyState === WebSocket.OPEN) {
+        console.log('2 going to send.......................')
+        client.send(data);
+      }
+    });
+
+  })
+
+  // socket.send('welcome', {data: 'hello world'})
+  // clients[socket.id] = socket;
+  // socket.emit("welcome", { message: "hello world" })
+  // socket.on('my-location', (data) => {
+  //   console.log('my location', data.pos)
+  // })
+
+  // socket.on('disconnect', (socket) => {
+  //   console.log('Client just disconnected...')
+  // })
+
+  // socket.on('userLocationData', (userlocationData) => onUserLocationReceived(userLocationData, socket));
 });
 
-  // start listening (and create a 'server' object representing our server)
-  server.listen(PORT, () => console.log(`Mixing it up on port ${PORT}`))
 
-  module.exports = app;
+module.exports = app;
 
 
 
 // Event Listeners
 // When user sends location
-function onUserLocationReceived(userlocation, senderSocket) {
-  _sendAndSaveUserLocation(userlocation, senderSocket);
-}
+// function onUserLocationReceived(userlocation, senderSocket) {
+//   _sendAndSaveUserLocation(userlocation, senderSocket);
+// }
 
 
 
 // Helper Functions
-function _sendAndSaveUserLocation(userlocation, socket, fromServer) {
-  let userLocationData = {
-    latitude: userlocation.latitude,
-    longitude: userlocation.longitude,
-    timestamp: userlocation.timestamp
-  };
+// function _sendAndSaveUserLocation(userlocation, socket, fromServer) {
+//   let userLocationData = {
+//     latitude: userlocation.latitude,
+//     longitude: userlocation.longitude,
+//     timestamp: userlocation.timestamp
+//   };
 
 
-(err, userlocationData) => {
-    // if userLocationData is from server, send to everyone
-    let emitter = fromServer ? websocket : socket.broadcast;
-    emitter.emit('userLocationData', userlocationData)
-  }
-}
+// (err, userlocationData) => {
+//     // if userLocationData is from server, send to everyone
+//     let emitter = fromServer ? websocket : socket.broadcast;
+//     emitter.emit('userLocationData', userlocationData)
+//   }
+// }
 
 
 // This evaluates as true when this file is run directly from the command line,
