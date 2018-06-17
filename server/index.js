@@ -3,18 +3,13 @@ const express = require('express')
 const morgan = require('morgan')
 const bodyParser = require('body-parser')
 const compression = require('compression')
-const WebSocket = require('ws');
 // const passport = require('passport')
-
 // const db = require('./db')
 
 const PORT = process.env.PORT || 3000
 const app = express();
 const server = require('http').Server(app);
-// const io = require('socket.io')(server);
-const io = new WebSocket.Server({ server });
-
-
+const io = require('socket.io')(server);
 
 if (process.env.NODE_ENV !== 'production') require('../secrets') //Put the keys in secrets file then put the secrets file in the .gitignore file
 
@@ -87,40 +82,34 @@ if (process.env.NODE_ENV !== 'production') require('../secrets') //Put the keys 
 
 server.listen(3000, () => console.log(`Mixing it up on port ${PORT}`));
 
+
+
+
 // The event will be called when a client is connected.
 io.on('connection', (socket) => {
-  console.log('A client just joined on ===============================');
+  console.log('A client just joined on =====================', socket.id);
+  socket.emit('socket', {socketid: socket.id})
+  
+  io.clients((error, clients) => {
+    if (error) throw error;
+    console.log(clients); // => [6em3d4TJP8Et9EMNAAAA, G5p55dHhGgUnLUctAAAB]
+  });
 
-  socket.on('message', (incomingClientData) => {
-    let data = JSON.parse(incomingClientData)
-    console.log('data received =========> ', data)
-    if (data.event === 'position') {
-      console.log(data)
+  socket.on('position', (position) => {
+    console.log('new dada  =====================', socket.id);
 
-    }
+    console.log('position with socket id -----------------\n', position)
+    let positionObj = {}
+    let socketid = position.socketid
+    positionObj[socketid] = position.data
 
-    // io.clients.forEach(function(client) {        
-
-    //   if (client !== socket && client.readyState === WebSocket.OPEN) {
-    //     console.log('2 going to send.......................')
-    //     client.send(data);
-    //   }
-    // });
-
+    socket.broadcast.emit('otherPositions', {positionObj});
   })
 
-  // socket.send('welcome', {data: 'hello world'})
-  // clients[socket.id] = socket;
-  // socket.emit("welcome", { message: "hello world" })
-  // socket.on('my-location', (data) => {
-  //   console.log('my location', data.pos)
-  // })
+  socket.on('disconnect', () => {
+    console.log(`Connection ${socket.id} has left the building`)
+  })
 
-  // socket.on('disconnect', (socket) => {
-  //   console.log('Client just disconnected...')
-  // })
-
-  // socket.on('userLocationData', (userlocationData) => onUserLocationReceived(userLocationData, socket));
 });
 
 
@@ -165,3 +154,18 @@ module.exports = app;
 // } else {
 //   createApp()
 // }
+
+
+
+// position data format
+// { data:
+//   { timestamp: 1529193901578.266,
+//     coords:
+//      { speed: -1,
+//        latitude: 40.76727216,
+//        altitude: 0,
+//        longitude: -73.993929,
+//        heading: -1,
+//        accuracy: 5,
+//        altitudeAccuracy: -1 } },
+//  id: 'ZmFfArAYiMveFZ6UAAAE' }
