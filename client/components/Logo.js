@@ -12,7 +12,7 @@ import {
       <View style={styles.container}>
         <Image style={{width: 130, height: 130}}
           source={require('../images/logo3.png')}/>
-        <Text style={styles.logoText}>Welcome to My app.</Text>
+        <Text style={styles.logoText}>ShareLocation</Text>
       </View>
     );
   }
@@ -25,6 +25,7 @@ www.designevo.com/" title="Free Online Logo Maker">DesignEvo</a></div>
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor:'#80cbc4',
     flexGrow: 1,
     justifyContent:'flex-end',
     alignItems: 'center'

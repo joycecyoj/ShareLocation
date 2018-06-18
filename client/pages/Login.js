@@ -10,22 +10,28 @@ import {
  import Logo from '../components/Logo';
  import LoginForm from '../components/LoginForm';
 
- import { Actions } from 'react-native-router-flux';
+//  import { Actions } from 'react-native-router-flux';
 
-  export default class Login extends React.Component {
+  export default class Login extends Component {
 
-    signup() {
-      Actions.signup()
-    }
+    // signup() {
+    //   Actions.signup()
+    // }
+
+  static navigationOptions = {
+    header:null
+  }
 
   render() {
     return (
       <View style={styles.container}>
+      {/* <StatusBar barstyle="dark-content"/> */}
         <Logo/>
         <LoginForm type="Login"/>
         <View style={styles.signupTextCont}>
           <Text style={styles.signupText}>Don't have an account yet?</Text>
-          <TouchableOpacity onPress={this.signup}><Text style={styles.signupButton}> Signup</Text></TouchableOpacity>
+          <Text style={styles.signupButton} onPress={() => this.props.navigation.navigate('Map')}>MAP</Text>
+          <TouchableOpacity onPress={() => this.props.navigation.navigate('Signup')}><Text style={styles.signupButton}> Signup</Text></TouchableOpacity>
         </View>
       </View>
     );
@@ -35,7 +41,7 @@ import {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#80cbc4',
+    backgroundColor:'#80cbc4',
     alignItems: 'center',
     justifyContent: 'center',
   },

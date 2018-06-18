@@ -9,13 +9,17 @@ import {
  import Logo from '../components/Logo';
  import LoginForm from '../components/LoginForm';
 
- import {Actions} from 'react-native-router-flux';
+//  import {Actions} from 'react-native-router-flux';
 
   export default class Signup extends React.Component {
 
-    goBack(){
-      Actions.pop();
-    }
+    // goBack(){
+    //   Actions.pop();
+    // }
+
+  static navigationOptions = {
+    header:null
+  }
 
   render() {
     return (
@@ -24,7 +28,7 @@ import {
         <LoginForm type="Signup"/>
         <View style={styles.signupTextCont}>
           <Text style={styles.signupText}>Already have an account?</Text>
-          <TouchableOpacity onPress={this.goBack}><Text style={styles.signupButton}> Sign in</Text></TouchableOpacity>
+          <TouchableOpacity onPress={() => this.props.navigation.popToTop()}><Text style={styles.signupButton}> Sign in</Text></TouchableOpacity>
         </View>
       </View>
     );
