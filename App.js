@@ -5,9 +5,11 @@ import io from 'socket.io-client'
 
 export default class App extends React.Component {
   constructor(props) {
-    super(props);    
+    super(props);  
+    this.id = this.makeid()  
     this.state = {
       isLoading: true,
+      // socketid: '',
       myPosition: {
         latitude: 0,
         longitude: 0,
@@ -15,8 +17,18 @@ export default class App extends React.Component {
       },
       friends:{}
     };
-    this.socket = io.connect('http://c03a2c6a.ngrok.io') // describes the URL of page we're on
+    this.socket = io.connect('http://36c0fad1.ngrok.io/') // describes the URL of page we're on
 
+  }
+
+  makeid() {
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  
+    for (var i = 0; i < 5; i++)
+      text += possible.charAt(Math.floor(Math.random() * possible.length));
+  
+    return text;
   }
 
   componentDidMount() {
@@ -26,21 +38,29 @@ export default class App extends React.Component {
     
     this.watchId = navigator.geolocation.watchPosition(
       (position) => {
-        this.socket.emit('position', {
-          data: position,
-          socketid: this.socket.id
-        })
+        // console.log('position inside watch', position)
+        // console.log('this socket id----------------', this.socket.id)
+            
+
+        // if(typeof this.socket.id !== 'undefined') {
+          this.socket.emit('position', {
+            data: position,
+            // socketid: this.socket.id
+            id: this.id
+          })
+        // }
  
-        let temp = this.state.myPosition;
-        temp.latitude = position.coords.latitude
-        temp.longitude = position.coords.longitude
+        let tempPosition = {...this.state.myPosition};
+        tempPosition.latitude = position.coords.latitude
+        tempPosition.longitude = position.coords.longitude
+
         this.setState({
-          myPosition: temp,
+          myPosition: tempPosition,
           isLoading: false
         });
       },
       (error) => console.log(error),
-      { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000, distanceFilter: 10 },
+      { enableHighAccuracy: true, timeout: 20000, distanceFilter: 10 },
     );
   }
   
@@ -49,20 +69,21 @@ export default class App extends React.Component {
   }
   
   render() {
-    this.socket.on('socket', (data) => {
-      if (this.socket.id === null){
-        this.socket.id = data.socketid
-      }
-    })
+    // this.socket.on('socket', (data) => {
+    //   if (this.socket.id === null){
+    //     this.socket.id = data.socketid
+    //   }
+    // })
 
+    this.socket.on('otherPositions', (positionsData) => {
+      // console.log('positionsData from server broadcast', positionsData)
+      let tempFriends = {...this.state.friends}
+      tempFriends[positionsData.id] = positionsData.data
 
-    this.socket.on('otherPositions' , (positionsData) => {
-      console.log('positionsData from server broadcast', positionsData)
       this.setState({
-        friends: positionsData
+        friends: tempFriends
       })
     })
-
     console.log('state friends ----------------', this.state.friends)
 
     let friendsPositionsArr = Object.values(this.state.friends)
@@ -107,24 +128,24 @@ export default class App extends React.Component {
 
 
             {
-          //   friendsPositionsArr.map(marker => {
-          //     console.log('state friends ----------------', this.state.friends)
-          //     const friendsCoords = {
-          //       latitude: marker.data.coords.latitude,
-          //       longitude: marker.data.coords.longitude
-          //     }
+            friendsPositionsArr.map(marker => {
+              console.log('state friends ----------------', this.state.friends)
+              const friendsCoords = {
+                latitude: marker.coords.latitude,
+                longitude: marker.coords.longitude
+              }
               
-          //     return (
-          //       <MapView.Marker
-          //         // key={index}
-          //         coordinate={
-          //           coords
-          //         }
-          //         // timestamp={this.state.myPosition.timestamp}
-          //         // description={metadata}
-          //       />
-          //     )
-          //   })
+              return (
+                <MapView.Marker
+                  // key={index}
+                  coordinate={
+                    friendsCoords
+                  }
+                  // timestamp={this.state.myPosition.timestamp}
+                  // description={metadata}
+                />
+              )
+            })
           }
 
           </MapView>        

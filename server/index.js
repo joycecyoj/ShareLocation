@@ -87,8 +87,8 @@ server.listen(3000, () => console.log(`Mixing it up on port ${PORT}`));
 
 // The event will be called when a client is connected.
 io.on('connection', (socket) => {
-  console.log('A client just joined on =====================', socket.id);
-  socket.emit('socket', {socketid: socket.id})
+  // console.log('A client just joined on =====================', socket.id);
+  // socket.emit('socket', {socketid: socket.id})
   
   io.clients((error, clients) => {
     if (error) throw error;
@@ -96,14 +96,20 @@ io.on('connection', (socket) => {
   });
 
   socket.on('position', (position) => {
-    console.log('new dada  =====================', socket.id);
+    // let positionObj = {}
+    // let socketid = position.socketid
+    // positionObj['socketid'] = socketid
+    // positionObj['position'] = position.data
 
-    console.log('position with socket id -----------------\n', position)
-    let positionObj = {}
-    let socketid = position.socketid
-    positionObj[socketid] = position.data
+    // console.log('new socketid type  =====================', typeof socketid);
+    // console.log('new socket id', socketid)
 
-    socket.broadcast.emit('otherPositions', {positionObj});
+    // if(typeof socketid !== 'undefined') {
+      console.log('position with id -----------------\n', position)
+      // socket.broadcast.emit('otherPositions', {positionObj});
+      socket.broadcast.emit('otherPositions', position);
+
+    // }
   })
 
   socket.on('disconnect', () => {
