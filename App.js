@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { MapView } from "expo";   // expo???
-import io from 'socket.io-client'
+import { MapView } from "expo";
+import io from 'socket.io-client';
 
 export default class App extends React.Component {
   constructor(props) {
@@ -9,7 +9,6 @@ export default class App extends React.Component {
     this.id = this.makeid()  
     this.state = {
       isLoading: true,
-      // socketid: '',
       myPosition: {
         latitude: 0,
         longitude: 0,
@@ -18,7 +17,6 @@ export default class App extends React.Component {
       friends:{}
     };
     this.socket = io.connect('http://36c0fad1.ngrok.io/') // describes the URL of page we're on
-
   }
 
   makeid() {
@@ -32,23 +30,12 @@ export default class App extends React.Component {
   }
 
   componentDidMount() {
-    // if (typeof this.socket.id === 'undefined') {
-    //   console.log('socket-----------:\n', this.socket)
-    // }
-    
     this.watchId = navigator.geolocation.watchPosition(
       (position) => {
-        // console.log('position inside watch', position)
-        // console.log('this socket id----------------', this.socket.id)
-            
-
-        // if(typeof this.socket.id !== 'undefined') {
-          this.socket.emit('position', {
-            data: position,
-            // socketid: this.socket.id
-            id: this.id
-          })
-        // }
+        this.socket.emit('position', {
+          data: position,
+          id: this.id
+        })
  
         let tempPosition = {...this.state.myPosition};
         tempPosition.latitude = position.coords.latitude
@@ -69,26 +56,19 @@ export default class App extends React.Component {
   }
   
   render() {
-    // this.socket.on('socket', (data) => {
-    //   if (this.socket.id === null){
-    //     this.socket.id = data.socketid
-    //   }
-    // })
-
     this.socket.on('otherPositions', (positionsData) => {
-      // console.log('positionsData from server broadcast', positionsData)
+      // console.log('positionsData from server broadcast')
       let tempFriends = {...this.state.friends}
-      tempFriends[positionsData.id] = positionsData.data
+      tempFriends[positionsData.id] = {...positionsData}
 
       this.setState({
         friends: tempFriends
       })
     })
-    console.log('state friends ----------------', this.state.friends)
+    // console.log('state friends ----------------', this.state.friends)
 
     let friendsPositionsArr = Object.values(this.state.friends)
-    console.log('friendsPositionsArr', friendsPositionsArr)
-
+    // console.log('friendsPositionsArr', friendsPositionsArr)
 
     let myLat = this.state.myPosition.latitude
     let myLong = this.state.myPosition.longitude
@@ -97,8 +77,10 @@ export default class App extends React.Component {
       latitude: myLat,
       longitude: myLong
     };
+    const myMetadata = `ME!`
 
     return (
+
       <View style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}>
         {this.state.isLoading        
         ? <Text>loading...</Text>
@@ -117,67 +99,41 @@ export default class App extends React.Component {
               longitudeDelta: 0.0421
             }}
           >
+
             <MapView.Marker
-              // key={index}
               coordinate={
                 coords
               }
               timestamp={this.state.myPosition.timestamp}
-              // description={metadata}
+              description={myMetadata}
             />
-
 
             {
             friendsPositionsArr.map(marker => {
               console.log('state friends ----------------', this.state.friends)
               const friendsCoords = {
-                latitude: marker.coords.latitude,
-                longitude: marker.coords.longitude
+                latitude: marker.data.coords.latitude,
+                longitude: marker.data.coords.longitude
               }
               
+              const metadata = `id: ${marker.id}`
+
               return (
                 <MapView.Marker
-                  // key={index}
+                  key={marker.id}
                   coordinate={
                     friendsCoords
                   }
-                  // timestamp={this.state.myPosition.timestamp}
-                  // description={metadata}
+                  timestamp={marker.data.timestamp}
+                  description={metadata}
+                  title={marker.id}
                 />
               )
             })
           }
-
           </MapView>        
        }
       </View>
-
     );
   }
 }
-
-
-        // {/* {this.state.isLoading
-        //   ? null
-        //   : 
-        //   // this.state.markers.map((marker, index) => {
-        //       // const coords = {
-        //       //   latitude: marker.latitude,
-        //       //   longitude: marker.longitude
-        //       // };
-
-        //       // const metadata = `Status: ${marker.statusValue}`;
-
-        //       // return (
-        //         <MapView.Marker
-        //           // key={index}
-        //           coordinate={
-        //             coords
-        //           }
-        //           timestamp={this.state.myPosition.timestamp}
-        //           // description={metadata}
-        //         />
-        //       // );
-        //     // }
-        //     // )
-        //         /*}

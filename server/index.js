@@ -20,96 +20,62 @@ if (process.env.NODE_ENV !== 'production') require('../secrets') //Put the keys 
 //     .then(user => done(null, user))
 //     .catch(done))
 
-// const createApp = () => {
-  // logging middleware
-  app.use(morgan('dev'))
+// logging middleware
+app.use(morgan('dev'))
 
-  // body parsing middleware
-  app.use(bodyParser.json())
-  app.use(bodyParser.urlencoded({ extended: true }))
+// body parsing middleware
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: true }))
 
-  // compression middleware
-  app.use(compression())
-  //when we're sending datas back to the client, we will compress it then send it so it will make the quicker by 1/5 the time
+// compression middleware
+app.use(compression())
+//when we're sending datas back to the client, we will compress it then send it so it will make the quicker by 1/5 the time
 
-  // session middleware with passport
-  // app.use(session({
-  //   secret: process.env.SESSION_SECRET || 'my best friend is Cody',
-  //   store: sessionStore,
-  //   resave: false,
-  //   saveUninitialized: false
-  // }))
-  // app.use(passport.initialize())
-  // app.use(passport.session())
-
-
-  // auth and api routes
-  // app.use('/auth', require('./auth'))
-  // app.use('/api', require('./api'))
-
-  // static file-serving middleware
-  // app.use(express.static(path.join(__dirname, '..', 'public')))
-  //path.join is just an utility method that tells our dir
-  // any remaining requests with an extension (.js, .css, etc.) send 404
-  app.use((req, res, next) => {
-    if (path.extname(req.path).length) {
-      const err = new Error('Not found')
-      err.status = 404
-      next(err)
-    } else {
-      next()
-    }
-  })
-
-  // sends index.html
-  // app.use('*', (req, res) => {
-  //   res.sendFile(path.join(__dirname, '..', 'public/index.html'))
-  // })
-
-  // error handling endware
-  app.use((err, req, res, next) => {
-    console.error(err)
-    console.error(err.stack)
-    res.status(err.status || 500).send(err.message || 'Internal server error.')
-  })
-// }
+// session middleware with passport
+// app.use(session({
+//   secret: process.env.SESSION_SECRET || 'my best friend is Cody',
+//   store: sessionStore,
+//   resave: false,
+//   saveUninitialized: false
+// }))
+// app.use(passport.initialize())
+// app.use(passport.session())
 
 
-// Map objects to map sockets and users
-// let clients = {};
-// let users = {};
+// auth and api routes
+// app.use('/auth', require('./auth'))
+// app.use('/api', require('./api'))
+
+app.use((req, res, next) => {
+  if (path.extname(req.path).length) {
+    const err = new Error('Not found')
+    err.status = 404
+    next(err)
+  } else {
+    next()
+  }
+})
+
+// error handling endware
+app.use((err, req, res, next) => {
+  console.error(err)
+  console.error(err.stack)
+  res.status(err.status || 500).send(err.message || 'Internal server error.')
+})
 
 
 server.listen(3000, () => console.log(`Mixing it up on port ${PORT}`));
 
-
-
-
 // The event will be called when a client is connected.
 io.on('connection', (socket) => {
-  // console.log('A client just joined on =====================', socket.id);
-  // socket.emit('socket', {socketid: socket.id})
-  
   io.clients((error, clients) => {
     if (error) throw error;
     console.log(clients); // => [6em3d4TJP8Et9EMNAAAA, G5p55dHhGgUnLUctAAAB]
   });
 
   socket.on('position', (position) => {
-    // let positionObj = {}
-    // let socketid = position.socketid
-    // positionObj['socketid'] = socketid
-    // positionObj['position'] = position.data
-
-    // console.log('new socketid type  =====================', typeof socketid);
-    // console.log('new socket id', socketid)
-
-    // if(typeof socketid !== 'undefined') {
-      console.log('position with id -----------------\n', position)
-      // socket.broadcast.emit('otherPositions', {positionObj});
-      socket.broadcast.emit('otherPositions', position);
-
-    // }
+    // console.log('position with id -----------------\n', position)
+    socket.broadcast.emit('otherPositions', position);
   })
 
   socket.on('disconnect', () => {
@@ -118,35 +84,7 @@ io.on('connection', (socket) => {
 
 });
 
-
 module.exports = app;
-
-
-
-// Event Listeners
-// When user sends location
-// function onUserLocationReceived(userlocation, senderSocket) {
-//   _sendAndSaveUserLocation(userlocation, senderSocket);
-// }
-
-
-
-// Helper Functions
-// function _sendAndSaveUserLocation(userlocation, socket, fromServer) {
-//   let userLocationData = {
-//     latitude: userlocation.latitude,
-//     longitude: userlocation.longitude,
-//     timestamp: userlocation.timestamp
-//   };
-
-
-// (err, userlocationData) => {
-//     // if userLocationData is from server, send to everyone
-//     let emitter = fromServer ? websocket : socket.broadcast;
-//     emitter.emit('userLocationData', userlocationData)
-//   }
-// }
-
 
 // This evaluates as true when this file is run directly from the command line,
 // i.e. when we say 'node server/index.js' (or 'nodemon server/index.js', or 'nodemon server', etc)
