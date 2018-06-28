@@ -9,13 +9,7 @@ import {
  import Logo from '../components/Logo';
  import LoginForm from '../components/LoginForm';
 
-//  import {Actions} from 'react-native-router-flux';
-
   export default class Signup extends React.Component {
-
-    // goBack(){
-    //   Actions.pop();
-    // }
 
   static navigationOptions = {
     header:null

@@ -5,8 +5,8 @@ import io from 'socket.io-client';
 
 export default class Map extends React.Component {
   constructor(props) {
-    super(props);  
-    this.id = this.makeid()  
+    super(props);
+    this.id = this.makeid()
     this.state = {
       isLoading: true,
       myPosition: {
@@ -16,44 +16,66 @@ export default class Map extends React.Component {
       },
       friends:{}
     };
-    this.socket = io.connect('http://bfe1e772.ngrok.io') // describes the URL of page we're on
+    this.socket = io.connect('http://625809ac.ngrok.io')
   }
 
   makeid() {
     var text = "";
     var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  
+
     for (var i = 0; i < 5; i++)
       text += possible.charAt(Math.floor(Math.random() * possible.length));
-  
+
     return text;
   }
 
   componentDidMount() {
-    this.watchId = navigator.geolocation.watchPosition(
-      (position) => {
-        this.socket.emit('position', {
-          data: position,
-          id: this.id
-        })
- 
-        let tempPosition = {...this.state.myPosition};
-        tempPosition.latitude = position.coords.latitude
-        tempPosition.longitude = position.coords.longitude
+  //   this.watchId = navigator.geolocation.watchPosition(
+  //     (position) => {
+  //       this.socket.emit('position', {
+  //         data: position,
+  //         id: this.id
+  //       })
 
-        this.setState({
-          myPosition: tempPosition,
-          isLoading: false
-        });
-      },
-      (error) => console.log(error),
-      { enableHighAccuracy: true, timeout: 20000, distanceFilter: 10 },
-    );
-  }
-  
-  componentWillUnmount() {
-    navigator.geolocation.clearWatch(this.watchId);
-  }
+  //       let tempPosition = {...this.state.myPosition};
+  //       tempPosition.latitude = position.coords.latitude
+  //       tempPosition.longitude = position.coords.longitude
+
+  //       this.setState({
+  //         myPosition: tempPosition,
+  //         isLoading: false
+  //       });
+  //     },
+  //     (error) => console.log(error),
+  //     { enableHighAccuracy: true, timeout: 20000, distanceFilter: 10 },
+  //   );
+  // }
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      // console.log('position===========================', position)
+      this.socket.emit('position', {
+        data: position,
+        id: this.id
+      })
+
+      let tempPosition = {...this.state.myPosition};
+      tempPosition.latitude = position.coords.latitude
+      tempPosition.longitude = position.coords.longitude
+
+      this.setState({
+        myPosition: tempPosition,
+        isLoading: false
+      });
+    },
+    (error) => console.log(error),
+    { enableHighAccuracy: true, timeout: 20000, distanceFilter: 10 },
+  );
+}
+
+  // componentWillUnmount() {
+  //   navigator.geolocation.clearWatch(this.watchId);
+  // }
 
   static navigationOptions = {
     title: 'Map',
@@ -63,7 +85,7 @@ export default class Map extends React.Component {
     headerTintColor: '#fff'
   };
 
-  
+
   render() {
     this.socket.on('otherPositions', (positionsData) => {
       // console.log('positionsData from server broadcast')
@@ -91,10 +113,10 @@ export default class Map extends React.Component {
     return (
 
       <View style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}>
-        {this.state.isLoading        
+        {this.state.isLoading
         ? <Text>loading...</Text>
         : <MapView
-            style={{ 
+            style={{
               position: 'absolute',
               top: 0,
               left: 0,
@@ -102,7 +124,7 @@ export default class Map extends React.Component {
               bottom: 0,
              }}
             region={{
-              latitude: myLat, 
+              latitude: myLat,
               longitude: myLong,
               latitudeDelta: 0.0922,
               longitudeDelta: 0.0421
@@ -124,7 +146,7 @@ export default class Map extends React.Component {
                 latitude: marker.data.coords.latitude,
                 longitude: marker.data.coords.longitude
               }
-              
+
               const metadata = `id: ${marker.id}`
 
               return (
@@ -140,7 +162,7 @@ export default class Map extends React.Component {
               )
             })
           }
-          </MapView>        
+          </MapView>
        }
       </View>
     );

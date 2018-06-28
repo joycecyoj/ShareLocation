@@ -1,7 +1,7 @@
 import React, { Component } from "react";
-import { 
-  StyleSheet, 
-  Text, 
+import {
+  StyleSheet,
+  Text,
   View,
   Image
  } from "react-native";
@@ -11,17 +11,13 @@ import {
     return (
       <View style={styles.container}>
         <Image style={{width: 130, height: 130}}
-          source={require('../images/logo3.png')}/>
+          source={require('../images/logo-color.png')}/>
         <Text style={styles.logoText}>ShareLocation</Text>
       </View>
     );
   }
 }
 
-
-{/* <div>Logo made with <a href="https://
-www.designevo.com/" title="Free Online Logo Maker">DesignEvo</a></div>
- */}
 
 const styles = StyleSheet.create({
   container: {
@@ -37,6 +33,10 @@ const styles = StyleSheet.create({
     color:'rgba(255, 255, 255 , 07)'
   }
 });
+
+{/* <div>Logo made with <a href="https://
+www.designevo.com/" title="Free Online Logo Maker">DesignEvo</a></div>
+ */}
 
 
 
