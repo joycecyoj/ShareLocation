@@ -11,8 +11,8 @@ export default class Profile extends React.Component {
   }
   static navigationOptions = {
     title: 'Profile',
-    headerStyle: styles.headerStyle,
-    headerTitleStyle: { color: colorTheme.white.snow },
+    // headerStyle: styles.headerStyle,
+    // headerTitleStyle: { color: colorTheme.white.snow },
   };
 
   render() {
@@ -72,6 +72,6 @@ export default class Profile extends React.Component {
 }
 
 export const ProfileStack = createStackNavigator({
-  Map: { screen: Map },
+  // Map: { screen: Map },
   Login: { screen: Login },
 });
