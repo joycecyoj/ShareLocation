@@ -11,7 +11,7 @@ const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 
-if (process.env.NODE_ENV !== 'production') require('../secrets') //Put the keys in secrets file then put the secrets file in the .gitignore file
+if (process.env.NODE_ENV !== 'production') require('../secrets')
 
 // passport registration
 // passport.serializeUser((user, done) => done(null, user.id))

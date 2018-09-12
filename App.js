@@ -1,5 +1,5 @@
 import React, { Component } from "react";
- import { createStackNavigator } from 'react-navigation';
+import { createStackNavigator } from 'react-navigation';
 
 import Login from './client/pages/Login';
 import Signup from './client/pages/Signup';
@@ -14,8 +14,8 @@ export default class App extends Component {
 }
 
 const AppStackNavigator = createStackNavigator({
-  Login: Login,
-  Signup: Signup,
-  Map: Map
+  Login: { screen: Login },
+  Signup: { screen: Signup },
+  Map: { screen: Map },
   }
 );
